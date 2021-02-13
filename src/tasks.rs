@@ -5,7 +5,7 @@ use std::time::{Duration, SystemTime};
 use crate::constraint::Constraint;
 use crate::csi::CSIMountOptions;
 use crate::jobs::UpdateStrategy;
-use crate::resources::NetworkResource;
+use crate::resources::{NetworkResource, Resources};
 use crate::scaling::ScalingPolicy;
 use crate::services::Service;
 
@@ -63,10 +63,66 @@ pub struct TaskEvent {
     // NOTE: Deprecated fields omitted
 }
 
+#[derive(Debug, Default, Clone, Serialize, Deserialize)]
+#[serde(rename_all = "PascalCase")]
+pub struct DispatchPayloadConfig {
+    pub file: Option<String>,
+}
+
+#[derive(Debug, Default, Clone, Serialize, Deserialize)]
+#[serde(rename_all = "PascalCase")]
+pub struct TaskLifecycle {
+    pub hook: Option<String>,
+    pub sidecar: bool,
+}
+
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(rename_all = "PascalCase")]
 pub struct Task {
-    // FIXME:
+    pub name: String,
+    pub driver: Option<String>,
+    pub user: Option<String>,
+    pub lifecycle: Option<TaskLifecycle>,
+    pub config: HashMap<String, String>, // FIXME: Figure out value type
+    pub constraints: Vec<Constraint>,
+    pub affinities: Vec<Affinity>,
+    pub env: HashMap<String, String>,
+    pub services: Vec<Service>,
+    pub resources: Option<Resources>,
+    pub restart_policy: Option<RestartPolicy>,
+    pub meta: HashMap<String, String>,
+    pub kill_timeout: Option<Duration>,
+    pub log_config: Option<LogConfig>,
+    pub artifacts: Vec<TaskArtifact>,
+    pub vault: Option<Vault>,
+    pub templates: Vec<Template>,
+    pub dispatch_payload_config: Option<DispatchPayloadConfig>,
+    pub volume_mounts: Vec<VolumeMount>,
+    pub csi_plugin_config: Option<TaskCSIPluginConfig>,
+    pub leader: bool,
+    pub shutdown_delay: Option<Duration>,
+    pub kill_signal: Option<String>,
+    pub kind: Option<String>,
+    pub scaling_policy: Vec<ScalingPolicy>,
+}
+
+#[derive(Debug, Default, Clone, Serialize, Deserialize)]
+#[serde(rename_all = "PascalCase")]
+pub struct TaskArtifact {
+    pub getter_source: Option<String>,
+    pub getter_options: HashMap<String, String>,
+    pub getter_headers: HashMap<String, String>,
+    pub getter_mode: Option<String>,
+    pub relative_dest: Option<String>,
+}
+
+#[derive(Debug, Default, Clone, Serialize, Deserialize)]
+#[serde(rename_all = "PascalCase")]
+pub struct VolumeMount {
+    pub volume: Option<String>,
+    pub destination: Option<String>,
+    pub read_only: bool,
+    pub propagation_mode: Option<String>,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -128,11 +184,64 @@ pub struct SpreadTarget {
     pub percent: Option<u8>,
 }
 
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Default, Clone, Serialize, Deserialize)]
 #[serde(rename_all = "PascalCase")]
 pub struct EphemeralDisk {
     pub sticky: Option<bool>,
     pub migrate: Option<bool>,
     #[serde(rename = "Size")]
     pub size_mb: Option<i64>,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+#[serde(rename_all = "PascalCase")]
+pub struct LogConfig {
+    pub max_files: Option<i64>,
+    pub max_file_size_mb: Option<i64>,
+}
+
+impl Default for LogConfig {
+    fn default() -> LogConfig {
+        LogConfig {
+            max_files: Some(10),
+            max_file_size_mb: Some(10),
+        }
+    }
+}
+
+#[derive(Debug, Default, Clone, Serialize, Deserialize)]
+#[serde(rename_all = "PascalCase")]
+pub struct Template {
+    pub source_path: Option<String>,
+    pub dest_path: Option<String>,
+    pub embedded_tmpl: Option<String>,
+    pub change_mode: Option<String>,
+    pub change_signal: Option<String>,
+    pub splay: Option<Duration>,
+    pub perms: Option<String>,
+    pub left_delim: Option<String>,
+    pub right_delim: Option<String>,
+    pub envvars: bool,
+    pub vault_grace: Option<Duration>,
+}
+
+#[derive(Debug, Default, Clone, Serialize, Deserialize)]
+#[serde(rename_all = "PascalCase")]
+pub struct Vault {
+    pub policies: Vec<String>,
+    pub namespace: Option<String>,
+    pub env: bool,
+    pub change_mode: Option<String>,
+    pub change_signal: Option<String>,
+}
+
+pub type CSIPluginType = String;
+
+#[derive(Debug, Default, Clone, Serialize, Deserialize)]
+#[serde(rename_all = "PascalCase")]
+pub struct TaskCSIPluginConfig {
+    pub id: Option<String>,
+    #[serde(rename = "Type")]
+    pub plugin_type: Option<CSIPluginType>,
+    pub mount_dir: Option<String>,
 }
