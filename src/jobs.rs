@@ -5,7 +5,7 @@ use std::time::Duration;
 use crate::constraint::Constraint;
 use crate::tasks::{Affinity, MigrateStrategy, ReschedulePolicy, Spread, TaskGroup};
 
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Eq, PartialEq, Clone, Serialize, Deserialize)]
 #[serde(rename_all = "lowercase")]
 pub enum JobType {
     Service,
