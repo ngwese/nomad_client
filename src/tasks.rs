@@ -3,35 +3,35 @@ use serde::{Deserialize, Serialize};
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(rename_all = "PascalCase")]
 pub struct Affinity {
-  // FIXME:
+    // FIXME:
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(rename_all = "PascalCase")]
 pub struct TaskState {
-  // FIXME:
+    // FIXME:
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(rename_all = "PascalCase")]
 pub struct TaskGroup {
-  // FIXME:
+    // FIXME:
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(rename_all = "PascalCase")]
 pub struct MigrateStrategy {
-  // FIXME:
+    // FIXME:
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(rename_all = "PascalCase")]
 pub struct ReschedulePolicy {
-  // FIXME:
+    // FIXME:
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(rename_all = "PascalCase")]
 pub struct Spread {
-  // FIXME:
+    // FIXME:
 }

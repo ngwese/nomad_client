@@ -6,5 +6,4 @@ mod resources;
 mod tasks;
 
 #[cfg(test)]
-mod tests {
-}
+mod tests {}
