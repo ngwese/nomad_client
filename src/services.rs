@@ -6,12 +6,14 @@ use std::net::IpAddr;
 use std::time::Duration;
 
 use crate::resources::Resources;
+use crate::serde_helpers::hashi_duration;
 use crate::tasks::LogConfig;
 
 #[derive(Debug, Default, Clone, Serialize, Deserialize)]
 #[serde(default, rename_all = "PascalCase")]
 pub struct CheckRestart {
     pub limit: Option<i64>,
+    #[serde(with = "hashi_duration")]
     pub grace: Option<Duration>,
     pub ignore_warnings: bool,
 }
@@ -31,7 +33,9 @@ pub struct ServiceCheck {
     pub port_label: Option<String>,
     pub expose: bool,
     pub address_mode: Option<String>,
+    #[serde(with = "hashi_duration")]
     pub interval: Option<Duration>,
+    #[serde(with = "hashi_duration")]
     pub timeout: Option<Duration>,
     #[serde(rename = "TLSSkipVerify")]
     pub tls_skip_verify: bool,
@@ -53,7 +57,9 @@ pub struct ServiceCheck {
 pub struct Service {
     pub id: Option<String>,
     pub name: Option<String>,
+    #[serde(deserialize_with = "default_on_null::deserialize")]
     pub tags: Vec<String>,
+    #[serde(deserialize_with = "default_on_null::deserialize")]
     pub canary_tags: Vec<String>,
     pub enable_tag_override: bool,
     pub port_label: Option<String>,
@@ -98,6 +104,7 @@ pub struct ConsulGatewayBindAddress {
 #[derive(Debug, Default, Clone, Serialize, Deserialize)]
 #[serde(default, rename_all = "PascalCase")]
 pub struct ConsulGatewayProxy {
+    #[serde(with = "hashi_duration")]
     pub connect_timeout: Option<Duration>,
     pub envoy_gateway_bind_tagged_address: bool,
     #[serde(deserialize_with = "default_on_null::deserialize")]
@@ -106,7 +113,7 @@ pub struct ConsulGatewayProxy {
     #[serde(rename = "EnvoyDNSDiscoveryType")]
     pub envoy_dns_discovery_type: Option<String>,
     #[serde(deserialize_with = "default_on_null::deserialize")]
-    pub config: HashMap<String, String>, // FIXME: need to figure out value type
+    pub config: HashMap<String, serde_json::Value>,
 }
 
 #[derive(Debug, Default, Clone, Serialize, Deserialize)]
@@ -131,14 +138,16 @@ pub struct SidecarTask {
     pub driver: Option<String>,
     pub user: Option<String>,
     #[serde(deserialize_with = "default_on_null::deserialize")]
-    pub config: HashMap<String, String>, // FIXME: Need to determine value type
+    pub config: HashMap<String, serde_json::Value>,
     #[serde(deserialize_with = "default_on_null::deserialize")]
     pub env: HashMap<String, String>,
     pub resources: Option<Resources>,
     #[serde(deserialize_with = "default_on_null::deserialize")]
     pub meta: HashMap<String, String>,
+    #[serde(with = "hashi_duration")]
     pub kill_timeout: Option<Duration>,
     pub log_config: Option<LogConfig>,
+    #[serde(with = "hashi_duration")]
     pub shutdown_delay: Option<Duration>,
     pub kill_signal: Option<String>,
 }
@@ -185,7 +194,7 @@ pub struct ConsulProxy {
     #[serde(deserialize_with = "default_on_null::deserialize")]
     pub upstreams: Vec<ConsulUpstream>,
     #[serde(deserialize_with = "default_on_null::deserialize")]
-    pub config: HashMap<String, String>, // FIXME: Need to determine value type
+    pub config: HashMap<String, serde_json::Value>,
 }
 
 #[derive(Debug, Default, Clone, Serialize, Deserialize)]
