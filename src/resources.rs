@@ -166,5 +166,6 @@ mod tests {
         assert_eq!(r.devices[0].name, "nvidia/gpu");
         assert_eq!(r.devices[0].count, Some(2));
         assert_eq!(r.devices[0].constraints.len(), 0);
+        assert_eq!(r.devices[0].affinities.len(), 0);
     }
 }

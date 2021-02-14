@@ -14,8 +14,8 @@ pub enum Operand {
     AttributeIsNotSet, // "is_not_set"
 }
 
-#[derive(Debug, Clone, Serialize, Deserialize)]
-#[serde(rename_all = "PascalCase")]
+#[derive(Debug, Default, Clone, Serialize, Deserialize)]
+#[serde(default, rename_all = "PascalCase")]
 pub struct Constraint {
     pub l_target: Option<String>,
     pub r_target: Option<String>,
