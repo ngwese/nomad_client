@@ -13,7 +13,9 @@ pub enum JobType {
     System,
 }
 
+#[allow(dead_code)]
 pub const DEFAULT_NAMESPACE: &str = "default";
+#[allow(dead_code)]
 pub const GLOBAL_REGION: &str = "global";
 
 #[derive(Debug, Default, Clone, Serialize, Deserialize)]
@@ -114,3 +116,12 @@ pub struct Job {
     pub modify_index: Option<u64>,
     pub job_modify_index: Option<u64>,
 }
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+#[serde(rename_all = "PascalCase")]
+pub struct JobSpec {
+    pub job: Job,
+}
+
+#[cfg(test)]
+mod tests {}
