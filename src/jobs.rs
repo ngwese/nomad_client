@@ -16,6 +16,12 @@ pub enum JobType {
     System,
 }
 
+impl Default for JobType {
+    fn default() -> JobType {
+        JobType::Service
+    }
+}
+
 #[allow(dead_code)]
 pub const DEFAULT_NAMESPACE: &str = "default";
 #[allow(dead_code)]
@@ -93,6 +99,7 @@ pub struct ParameterizedJobConfig {
 pub struct Job {
     pub region: Option<String>,
     pub namespace: Option<String>,
+    #[serde(rename = "ID")]
     pub id: Option<String>,
     pub name: Option<String>,
     #[serde(rename = "Type")]
@@ -109,19 +116,19 @@ pub struct Job {
     #[serde(deserialize_with = "default_on_null::deserialize")]
     pub task_group: Vec<TaskGroup>,
     #[serde(deserialize_with = "default_on_null::deserialize")]
-    pub update: UpdateStrategy,
+    pub update: Option<UpdateStrategy>,
     #[serde(deserialize_with = "default_on_null::deserialize")]
-    pub multiregion: Multiregion,
+    pub multiregion: Option<Multiregion>,
     #[serde(deserialize_with = "default_on_null::deserialize")]
     pub spreads: Vec<Spread>,
     #[serde(deserialize_with = "default_on_null::deserialize")]
-    pub periodic: PeriodicConfig,
+    pub periodic: Option<PeriodicConfig>,
     #[serde(deserialize_with = "default_on_null::deserialize")]
-    pub parameterized_job: ParameterizedJobConfig,
+    pub parameterized_job: Option<ParameterizedJobConfig>,
     #[serde(deserialize_with = "default_on_null::deserialize")]
-    pub reschedule: ReschedulePolicy,
+    pub reschedule: Option<ReschedulePolicy>,
     #[serde(deserialize_with = "default_on_null::deserialize")]
-    pub migrate: MigrateStrategy,
+    pub migrate: Option<MigrateStrategy>,
     #[serde(deserialize_with = "default_on_null::deserialize")]
     pub meta: HashMap<String, String>,
     pub consul_token: Option<String>,
@@ -146,6 +153,70 @@ pub struct Job {
     pub create_index: Option<u64>,
     pub modify_index: Option<u64>,
     pub job_modify_index: Option<u64>,
+}
+
+// JobSummary summarizes the state of the allocations of a job
+#[derive(Debug, Default, Clone, Serialize, Deserialize)]
+#[serde(default, rename_all = "PascalCase")]
+pub struct JobSummary {
+    #[serde(rename = "JobID")]
+    pub job_id: String,
+    pub namespace: String,
+    #[serde(deserialize_with = "default_on_null::deserialize")]
+    pub summary: HashMap<String, TaskGroupSummary>,
+    pub children: Option<JobChildrenSummary>,
+    pub create_index: u64,
+    pub modify_index: u64,
+}
+
+// JobChildrenSummary contains the summary of children job status
+#[derive(Debug, Default, Clone, Serialize, Deserialize)]
+#[serde(default, rename_all = "PascalCase")]
+pub struct JobChildrenSummary {
+    pub pending: i64,
+    pub running: i64,
+    pub dead: i64,
+}
+
+// TaskGroup summarizes the state of all the allocations of a particular
+// TaskGroup
+#[derive(Debug, Default, Clone, Serialize, Deserialize)]
+#[serde(default, rename_all = "PascalCase")]
+pub struct TaskGroupSummary {
+    pub queued: i64,
+    pub complete: i64,
+    pub failed: i64,
+    pub running: i64,
+    pub starting: i64,
+    pub lost: i64,
+}
+
+// JobListStub is used to return a subset of information about
+// jobs during list operations
+#[derive(Debug, Default, Clone, Serialize, Deserialize)]
+#[serde(default, rename_all = "PascalCase")]
+pub struct JobListStub {
+    #[serde(rename = "ID")]
+    pub id: String,
+    #[serde(rename = "ParentID")]
+    pub parent_id: String,
+    pub name: String,
+    pub namespace: Option<String>,
+    #[serde(deserialize_with = "default_on_null::deserialize")]
+    pub datacenters: Vec<String>,
+    #[serde(rename = "Type")]
+    pub job_type: JobType,
+    pub priority: i64,
+    pub periodic: bool,
+    pub parameterized_job: bool,
+    pub stop: bool,
+    pub status: String,
+    pub status_description: String,
+    pub job_summary: Option<JobSummary>,
+    pub create_index: u64,
+    pub modify_index: u64,
+    pub job_modify_index: u64,
+    pub submit_time: i64,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
