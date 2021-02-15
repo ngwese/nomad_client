@@ -3,7 +3,22 @@ use serde::{Deserialize, Serialize};
 use serde_with::rust::default_on_null;
 use std::collections::HashMap;
 
-use crate::resources::{NetworkResource, NodeDeviceResource};
+use crate::resources::{NetworkResource, NodeDeviceResource, Resources};
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+#[serde(rename_all = "lowercase")]
+pub enum NodeStatus {
+    Initializing,
+    Ready,
+    Down,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+#[serde(rename_all = "lowercase")]
+pub enum NodeScheduling {
+    Eligible,
+    Ineligible,
+}
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(rename_all = "PascalCase")]
@@ -32,37 +47,42 @@ pub struct HostVolumeInfo {
     pub read_only: bool,
 }
 
-/*
 // Node is used to deserialize a node entry.
-type Node struct {
-    ID                    string
-    Datacenter            string
-    Name                  string
-    HTTPAddr              string
-    TLSEnabled            bool
-    Attributes            map[string]string
-    Resources             *Resources
-    Reserved              *Resources
-    NodeResources         *NodeResources
-    ReservedResources     *NodeReservedResources
-    Links                 map[string]string
-    Meta                  map[string]string
-    NodeClass             string
-    Drain                 bool
-    DrainStrategy         *DrainStrategy
-    SchedulingEligibility string
-    Status                string
-    StatusDescription     string
-    StatusUpdatedAt       int64
-    Events                []*NodeEvent
-    Drivers               map[string]*DriverInfo
-    HostVolumes           map[string]*HostVolumeInfo
-    CSIControllerPlugins  map[string]*CSIInfo
-    CSINodePlugins        map[string]*CSIInfo
-    CreateIndex           uint64
-    ModifyIndex           uint64
+#[derive(Debug, Clone, Serialize, Deserialize)]
+#[serde(rename_all = "PascalCase")]
+pub struct Node {
+    #[serde(rename = "ID")]
+    pub id: String,
+    pub datacenter: String,
+    pub name: String,
+    #[serde(rename = "HTTPAddr")]
+    pub http_addr: String,
+    #[serde(rename = "TLSEnabled")]
+    pub tls_enabled: bool,
+    pub attributes: HashMap<String, String>,
+    pub resources: Option<Resources>,
+    pub reserved: Option<Resources>,
+    pub node_resources: Option<NodeResources>,
+    pub reserved_resources: Option<NodeReservedResources>,
+    pub links: HashMap<String, String>,
+    pub meta: HashMap<String, String>,
+    pub node_class: String,
+    pub drain: bool,
+    pub drain_strategy: Option<DrainStrategy>,
+    pub scheduling_eligibility: String,
+    pub status: String,
+    pub status_description: String,
+    pub status_updated_at: i64,
+    pub events: Vec<NodeEvent>,
+    pub drivers: HashMap<String, DriverInfo>,
+    pub host_volumes: HashMap<String, HostVolumeInfo>,
+    #[serde(rename = "CSIControllerPlugins")]
+    pub csi_controller_plugins: HashMap<String, CSIInfo>,
+    #[serde(rename = "CSINodePlugins")]
+    pub csi_node_plugins: HashMap<String, CSIInfo>,
+    pub create_index: u64,
+    pub modify_index: u64,
 }
-*/
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(rename_all = "PascalCase")]
@@ -135,39 +155,40 @@ pub struct CSITopology {
     pub segments: HashMap<String, String>,
 }
 
-/*
-// CSINodeInfo is the fingerprinted data from a CSI Plugin that is specific to
-// the Node API.
-type CSINodeInfo struct {
-    ID                      string
-    MaxVolumes              int64
-    AccessibleTopology      *CSITopology
-    RequiresNodeStageVolume bool
+#[derive(Debug, Clone, Serialize, Deserialize)]
+#[serde(rename_all = "PascalCase")]
+pub struct CSINodeInfo {
+    #[serde(rename = "ID")]
+    pub id: String,
+    pub max_volumes: i64,
+    pub accessible_topology: Option<CSITopology>,
+    pub required_node_stage_volume: bool,
 }
 
-// CSIControllerInfo is the fingerprinted data from a CSI Plugin that is specific to
-// the Controller API.
-type CSIControllerInfo struct {
-    SupportsReadOnlyAttach           bool
-    SupportsAttachDetach             bool
-    SupportsListVolumes              bool
-    SupportsListVolumesAttachedNodes bool
+#[derive(Debug, Clone, Serialize, Deserialize)]
+#[serde(rename_all = "PascalCase")]
+pub struct CSIControllerInfo {
+    pub supports_read_only_attach: bool,
+    pub supports_attach_detach: bool,
+    pub supports_list_volumes: bool,
+    pub supports_list_volumes_attached_nodes: bool,
 }
 
-// CSIInfo is the current state of a single CSI Plugin. This is updated regularly
-// as plugin health changes on the node.
-type CSIInfo struct {
-    PluginID                 string
-    AllocID                  string
-    Healthy                  bool
-    HealthDescription        string
-    UpdateTime               time.Time
-    RequiresControllerPlugin bool
-    RequiresTopologies       bool
-    ControllerInfo           *CSIControllerInfo `json:",omitempty"`
-    NodeInfo                 *CSINodeInfo       `json:",omitempty"`
+#[derive(Debug, Clone, Serialize, Deserialize)]
+#[serde(rename_all = "PascalCase")]
+pub struct CSIInfo {
+    #[serde(rename = "PluginID")]
+    pub plugin_id: String,
+    #[serde(rename = "AllocID")]
+    pub alloc_id: String,
+    pub healthy: bool,
+    pub health_description: String,
+    pub update_time: DateTime<Utc>,
+    pub requires_controller_plugin: bool,
+    pub requires_topologies: bool,
+    pub controller_info: Option<CSIControllerInfo>,
+    pub node_info: Option<CSINodeInfo>,
 }
-*/
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(rename_all = "PascalCase")]
@@ -203,103 +224,98 @@ pub struct NodeEvent {
     pub create_index: u64,
 }
 
-/*
-
-// HostStats represents resource usage stats of the host running a Nomad client
-type HostStats struct {
-    Memory           *HostMemoryStats
-    CPU              []*HostCPUStats
-    DiskStats        []*HostDiskStats
-    DeviceStats      []*DeviceGroupStats
-    Uptime           uint64
-    CPUTicksConsumed float64
+#[derive(Debug, Clone, Serialize, Deserialize)]
+#[serde(rename_all = "PascalCase")]
+pub struct HostStats {
+    pub memory: Option<HostMemoryStats>,
+    #[serde(rename = "CPU")]
+    pub cpu: Vec<HostCPUStats>,
+    pub disk_stats: Vec<HostDiskStats>,
+    pub device_stats: Vec<DeviceGroupStats>,
+    pub uptime: u64,
+    #[serde(rename = "CPUTicksConsumed")]
+    pub cpu_ticks_consumed: f64,
 }
 
-type HostMemoryStats struct {
-    Total     uint64
-    Available uint64
-    Used      uint64
-    Free      uint64
+#[derive(Debug, Clone, Serialize, Deserialize)]
+#[serde(rename_all = "PascalCase")]
+pub struct HostMemoryStats {
+    pub total: u64,
+    pub available: u64,
+    pub used: u64,
+    pub free: u64,
 }
 
-type HostCPUStats struct {
-    CPU    string
-    User   float64
-    System float64
-    Idle   float64
+#[derive(Debug, Clone, Serialize, Deserialize)]
+#[serde(rename_all = "PascalCase")]
+pub struct HostCPUStats {
+    #[serde(rename = "CPU")]
+    pub cpu: String,
+    pub user: f64,
+    pub system: f64,
+    pub idle: f64,
 }
 
-type HostDiskStats struct {
-    Device            string
-    Mountpoint        string
-    Size              uint64
-    Used              uint64
-    Available         uint64
-    UsedPercent       float64
-    InodesUsedPercent float64
+#[derive(Debug, Clone, Serialize, Deserialize)]
+#[serde(rename_all = "PascalCase")]
+pub struct HostDiskStats {
+    pub device: String,
+    pub mountpoint: String,
+    pub size: u64,
+    pub used: u64,
+    pub available: u64,
+    pub used_percent: f64,
+    pub inodes_used_percent: f64,
 }
 
-// DeviceGroupStats contains statistics for each device of a particular
-// device group, identified by the vendor, type and name of the device.
-type DeviceGroupStats struct {
-    Vendor string
-    Type   string
-    Name   string
-
-    // InstanceStats is a mapping of each device ID to its statistics.
-    InstanceStats map[string]*DeviceStats
+#[derive(Debug, Clone, Serialize, Deserialize)]
+#[serde(rename_all = "PascalCase")]
+pub struct DeviceGroupStats {
+    pub vendor: String,
+    #[serde(rename = "Type")]
+    pub device_type: String,
+    pub name: String,
+    pub instance_stats: HashMap<String, DeviceStats>,
 }
 
-// DeviceStats is the statistics for an individual device
-type DeviceStats struct {
-    // Summary exposes a single summary metric that should be the most
-    // informative to users.
-    Summary *StatValue
-
-    // Stats contains the verbose statistics for the device.
-    Stats *StatObject
-
-    // Timestamp is the time the statistics were collected.
-    Timestamp time.Time
+#[derive(Debug, Clone, Serialize, Deserialize)]
+#[serde(rename_all = "PascalCase")]
+pub struct DeviceStats {
+    pub summary: Option<StatValue>,
+    pub stats: Option<StatObject>,
+    pub timestamp: DateTime<Utc>,
 }
 
-// StatObject is a collection of statistics either exposed at the top
-// level or via nested StatObjects.
-type StatObject struct {
-    // Nested is a mapping of object name to a nested stats object.
-    Nested map[string]*StatObject
-
-    // Attributes is a mapping of statistic name to its value.
-    Attributes map[string]*StatValue
+#[derive(Debug, Clone, Serialize, Deserialize)]
+#[serde(rename_all = "PascalCase")]
+pub struct StatObject {
+    pub nested: HashMap<String, StatObject>,
+    pub attributes: HashMap<String, StatValue>,
 }
 
-// StatValue exposes the values of a particular statistic. The value may be of
-// type float, integer, string or boolean. Numeric types can be exposed as a
-// single value or as a fraction.
-type StatValue struct {
-    // FloatNumeratorVal exposes a floating point value. If denominator is set
-    // it is assumed to be a fractional value, otherwise it is a scalar.
-    FloatNumeratorVal   *float64 `json:",omitempty"`
-    FloatDenominatorVal *float64 `json:",omitempty"`
+// TODO: Switch this to an enum if possible.
+#[derive(Debug, Clone, Serialize, Deserialize)]
+#[serde(rename_all = "PascalCase")]
+pub struct StatValue {
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub float_numerator_val: Option<f64>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub float_denominator_val: Option<f64>,
 
-    // IntNumeratorVal exposes a int value. If denominator is set it is assumed
-    // to be a fractional value, otherwise it is a scalar.
-    IntNumeratorVal   *int64 `json:",omitempty"`
-    IntDenominatorVal *int64 `json:",omitempty"`
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub int_numerator_val: Option<i64>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub int_denominator_val: Option<i64>,
 
-    // StringVal exposes a string value. These are likely annotations.
-    StringVal *string `json:",omitempty"`
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub bool_val: Option<bool>,
 
-    // BoolVal exposes a boolean statistic.
-    BoolVal *bool `json:",omitempty"`
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub unit: Option<String>,
 
-    // Unit gives the unit type: °F, %, MHz, MB, etc.
-    Unit string `json:",omitempty"`
-
-    // Desc provides a human readable description of the statistic.
-    Desc string `json:",omitempty"`
+    #[serde(rename = "Desc", skip_serializing_if = "Option::is_none")]
+    pub description: Option<String>,
 }
-*/
 
 // NodeListStub is a subset of information returned during node list operations.
 #[derive(Debug, Default, Clone, Serialize, Deserialize)]
