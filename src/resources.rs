@@ -1,5 +1,6 @@
 use serde::{Deserialize, Serialize};
 use serde_with::rust::{default_on_error, default_on_null};
+use std::collections::HashMap;
 use std::net::IpAddr;
 
 use crate::constraint::Constraint;
@@ -68,6 +69,52 @@ pub struct RequestedDevice {
     pub constraints: Vec<Constraint>,
     #[serde(deserialize_with = "default_on_null::deserialize")]
     pub affinities: Vec<Affinity>,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+#[serde(rename_all = "PascalCase")]
+pub struct NodeDeviceResource {
+    pub vendor: String,
+    #[serde(rename = "Type")]
+    pub device_type: String,
+    pub name: String,
+    pub instances: Vec<NodeDevice>,
+    pub attributes: HashMap<String, Attribute>,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+#[serde(rename_all = "PascalCase")]
+pub struct NodeDevice {
+    #[serde(rename = "ID")]
+    pub id: String,
+    pub healthy: bool,
+    pub health_description: String,
+    pub locality: Option<NodeDeviceLocality>,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct NodeDeviceLocality {
+    #[serde(rename = "PciBusID")]
+    pub pci_bus_id: String,
+}
+
+// Attribute is used to describe the value of an attribute, optionally
+// specifying units.
+//
+// TODO: Switch this to an enum if possible.
+#[derive(Debug, Clone, Serialize, Deserialize)]
+#[serde(rename_all = "PascalCase")]
+pub struct Attribute {
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub float_val: Option<f64>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub int_val: Option<i64>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub string_val: Option<String>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub bool_val: Option<bool>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub unit: Option<String>,
 }
 
 #[cfg(test)]

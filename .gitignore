@@ -1,2 +1,5 @@
+/other
 /target
 Cargo.lock
+
+/*.json
