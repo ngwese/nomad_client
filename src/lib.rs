@@ -1,6 +1,8 @@
 pub mod allocations;
 pub mod constraint;
 pub mod csi;
+pub mod deployments;
+pub mod evaluations;
 pub mod event_stream;
 pub mod jobs;
 pub mod nodes;

@@ -1,8 +1,9 @@
+use chrono::{DateTime, Utc};
 use serde::{Deserialize, Serialize};
 use serde_with::rust::default_on_null;
 
 use std::collections::HashMap;
-use std::time::{Duration, SystemTime};
+use std::time::Duration;
 
 use crate::constraint::Constraint;
 use crate::csi::CSIMountOptions;
@@ -52,9 +53,9 @@ pub struct TaskState {
     pub state: String,
     pub failed: bool,
     pub restarts: u64,
-    pub last_restart: Option<SystemTime>,
-    pub started_at: Option<SystemTime>,
-    pub finished_at: Option<SystemTime>,
+    pub last_restart: Option<DateTime<Utc>>,
+    pub started_at: Option<DateTime<Utc>>,
+    pub finished_at: Option<DateTime<Utc>>,
     #[serde(deserialize_with = "default_on_null::deserialize")]
     pub events: Vec<TaskEvent>,
 }

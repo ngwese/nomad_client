@@ -59,12 +59,15 @@ pub struct Node {
     pub http_addr: String,
     #[serde(rename = "TLSEnabled")]
     pub tls_enabled: bool,
+    #[serde(deserialize_with = "default_on_null::deserialize")]
     pub attributes: HashMap<String, String>,
     pub resources: Option<Resources>,
     pub reserved: Option<Resources>,
     pub node_resources: Option<NodeResources>,
     pub reserved_resources: Option<NodeReservedResources>,
+    #[serde(deserialize_with = "default_on_null::deserialize")]
     pub links: HashMap<String, String>,
+    #[serde(deserialize_with = "default_on_null::deserialize")]
     pub meta: HashMap<String, String>,
     pub node_class: String,
     pub drain: bool,
@@ -73,12 +76,21 @@ pub struct Node {
     pub status: String,
     pub status_description: String,
     pub status_updated_at: i64,
+    #[serde(deserialize_with = "default_on_null::deserialize")]
     pub events: Vec<NodeEvent>,
+    #[serde(deserialize_with = "default_on_null::deserialize")]
     pub drivers: HashMap<String, DriverInfo>,
+    #[serde(deserialize_with = "default_on_null::deserialize")]
     pub host_volumes: HashMap<String, HostVolumeInfo>,
-    #[serde(rename = "CSIControllerPlugins")]
+    #[serde(
+        rename = "CSIControllerPlugins",
+        deserialize_with = "default_on_null::deserialize"
+    )]
     pub csi_controller_plugins: HashMap<String, CSIInfo>,
-    #[serde(rename = "CSINodePlugins")]
+    #[serde(
+        rename = "CSINodePlugins",
+        deserialize_with = "default_on_null::deserialize"
+    )]
     pub csi_node_plugins: HashMap<String, CSIInfo>,
     pub create_index: u64,
     pub modify_index: u64,
@@ -90,7 +102,9 @@ pub struct NodeResources {
     pub cpu: NodeCpuResources,
     pub memory: NodeMemoryResources,
     pub disk: NodeDiskResources,
+    #[serde(deserialize_with = "default_on_null::deserialize")]
     pub networks: Vec<NetworkResource>,
+    #[serde(deserialize_with = "default_on_null::deserialize")]
     pub devices: Vec<NodeDeviceResource>,
 }
 
@@ -152,6 +166,7 @@ pub struct NodeReservedNetworkResources {
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(rename_all = "PascalCase")]
 pub struct CSITopology {
+    #[serde(deserialize_with = "default_on_null::deserialize")]
     pub segments: HashMap<String, String>,
 }
 
@@ -219,6 +234,7 @@ pub enum NodeEventSubsystem {
 pub struct NodeEvent {
     pub message: String,
     pub subsystem: NodeEventSubsystem,
+    #[serde(deserialize_with = "default_on_null::deserialize")]
     pub details: HashMap<String, String>,
     pub timestamp: DateTime<Utc>,
     pub create_index: u64,
@@ -228,9 +244,11 @@ pub struct NodeEvent {
 #[serde(rename_all = "PascalCase")]
 pub struct HostStats {
     pub memory: Option<HostMemoryStats>,
-    #[serde(rename = "CPU")]
+    #[serde(rename = "CPU", deserialize_with = "default_on_null::deserialize")]
     pub cpu: Vec<HostCPUStats>,
+    #[serde(deserialize_with = "default_on_null::deserialize")]
     pub disk_stats: Vec<HostDiskStats>,
+    #[serde(deserialize_with = "default_on_null::deserialize")]
     pub device_stats: Vec<DeviceGroupStats>,
     pub uptime: u64,
     #[serde(rename = "CPUTicksConsumed")]
@@ -275,6 +293,7 @@ pub struct DeviceGroupStats {
     #[serde(rename = "Type")]
     pub device_type: String,
     pub name: String,
+    #[serde(deserialize_with = "default_on_null::deserialize")]
     pub instance_stats: HashMap<String, DeviceStats>,
 }
 
@@ -289,7 +308,9 @@ pub struct DeviceStats {
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(rename_all = "PascalCase")]
 pub struct StatObject {
+    #[serde(deserialize_with = "default_on_null::deserialize")]
     pub nested: HashMap<String, StatObject>,
+    #[serde(deserialize_with = "default_on_null::deserialize")]
     pub attributes: HashMap<String, StatValue>,
 }
 
@@ -332,6 +353,7 @@ pub struct NodeListStub {
     pub scheduling_eligibility: String,
     pub status: String,
     pub status_description: String,
+    #[serde(deserialize_with = "default_on_null::deserialize")]
     pub drivers: HashMap<String, DriverInfo>,
     pub node_resources: Option<NodeResources>,
     pub reserved_resources: Option<NodeReservedResources>,

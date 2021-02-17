@@ -1,4 +1,11 @@
 use serde::{Deserialize, Serialize};
+use serde_with::rust::default_on_null;
+
+use crate::allocations::Allocation;
+use crate::deployments::Deployment;
+use crate::evaluations::Evaluation;
+use crate::jobs::Job;
+use crate::nodes::Node;
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub enum Topic {
@@ -12,29 +19,34 @@ pub enum Topic {
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub enum EventPayload {
-    Allocation,
-    Deployment,
-    Evaluation,
-    Job,
-    Node,
+    Allocation(Allocation),
+    Deployment(Deployment),
+    Evaluation(Evaluation),
+    Job(Job),
+    Node(Node),
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(rename_all = "PascalCase")]
 pub struct Event {
     pub topic: Topic,
+    #[serde(rename = "Type")]
     pub event_type: String,
     pub key: String,
+    #[serde(deserialize_with = "default_on_null::deserialize")]
     pub filter_keys: Vec<String>,
     pub index: u64,
     pub payload: EventPayload,
 }
 
-#[derive(Debug)]
+#[derive(Debug, Default, Clone, Serialize, Deserialize)]
+#[serde(default, rename_all = "PascalCase")]
 pub struct Events {
     pub index: u64,
+    #[serde(deserialize_with = "default_on_null::deserialize")]
     pub events: Vec<Event>,
-    pub error: Box<dyn std::error::Error>,
+    #[serde(rename = "Err")]
+    pub error: Option<String>,
 }
 
 #[cfg(test)]
