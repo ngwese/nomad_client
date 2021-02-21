@@ -1,33 +1,30 @@
 use serde::de::DeserializeOwned;
 use serde_json;
 
-pub struct Assembler
-{
+pub struct Assembler {
     buffered: Option<String>,
 }
 
-impl Assembler
-{
+impl Assembler {
     pub fn new() -> Self {
-        Self {
-            buffered: None,
-        }
+        Self { buffered: None }
     }
 
-    pub fn add<T>(&mut self, chunk: &str) -> Option<T>
+    pub fn add<T>(&mut self, chunk: &str) -> Result<Option<T>, serde_json::error::Error>
     where
-        T: DeserializeOwned
+        T: DeserializeOwned,
     {
         if self.buffered.is_none() {
             match serde_json::from_str::<T>(chunk) {
-                Ok(value) => return Some(value),
-                Err(_) => {
-                    self.buffered = Some(String::from(chunk));
-                    // TODO: provide some means of accessing the error because
-                    // we likely need to differentiate between EOF parse errors
-                    // and actual complete parses with syntactic errors.
-                    return None
-                },
+                Ok(value) => return Ok(Some(value)),
+                Err(e) => {
+                    if e.is_eof() {
+                        self.buffered = Some(String::from(chunk));
+                        return Ok(None);
+                    } else {
+                        return Err(e);
+                    }
+                }
             }
         };
 
@@ -36,11 +33,11 @@ impl Assembler
             buffer.push_str(chunk);
             if let Ok(value) = serde_json::from_str::<T>(&buffer) {
                 self.buffered = None;
-                return Some(value);
+                return Ok(Some(value));
             };
         }
 
-        None
+        Ok(None)
     }
 }
 
@@ -50,14 +47,17 @@ mod tests {
     use std::collections::HashMap;
 
     type IntMap = HashMap<String, i32>;
+    type StringMap = HashMap<String, String>;
 
     #[test]
     fn complete_object() {
         let chunk1 = r#"{ "one": 1 }"#;
 
         let mut assembler = Assembler::new();
-        let value = assembler.add::<IntMap>(&chunk1).expect("deserialized value");
-        assert_eq!(value.get("one"), Some(&1i32));
+        let value = assembler
+            .add::<IntMap>(&chunk1)
+            .expect("deserialized value");
+        assert_eq!(value.unwrap().get("one"), Some(&1i32));
     }
 
     #[test]
@@ -67,15 +67,30 @@ mod tests {
         let chunk3 = r#"{ "two": 2 }"#;
 
         let mut assembler = Assembler::new();
-        let mut value: Option<IntMap> = assembler.add(&chunk1);
-        assert!(value.is_none());
+        let value = assembler.add::<IntMap>(&chunk1);
+        assert!(value.is_ok());
+        assert_eq!(value.unwrap(), None);
 
-        value = assembler.add(&chunk2);
-        assert!(value.is_some());
-        assert_eq!(value.unwrap().get("one"), Some(&1i32));
+        if let Ok(Some(object)) = assembler.add::<IntMap>(&chunk2) {
+            assert_eq!(object.get("one"), Some(&1i32));
+        } else {
+            panic!("expected completed parse");
+        }
 
-        value = assembler.add(&chunk3);
-        assert!(value.is_some());
-        assert_eq!(value.unwrap().get("two"), Some(&2i32));
+        if let Ok(Some(object)) = assembler.add::<IntMap>(&chunk3) {
+            assert_eq!(object.get("two"), Some(&2i32));
+        } else {
+            panic!("expected completed parse");
+        }
+    }
+
+    #[test]
+    fn syntax_error() {
+        let chunk1 = r#"{ "two": 1 }"#;
+        let mut assembler = Assembler::new();
+
+        let value = assembler.add::<StringMap>(&chunk1);
+        assert!(value.is_err());
+        println!("Value: {:?}", value);
     }
 }
