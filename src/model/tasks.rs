@@ -5,13 +5,13 @@ use serde_with::rust::default_on_null;
 use std::collections::HashMap;
 use std::time::Duration;
 
-use crate::constraint::Constraint;
-use crate::csi::CSIMountOptions;
-use crate::jobs::UpdateStrategy;
-use crate::resources::{NetworkResource, Resources};
-use crate::scaling::ScalingPolicy;
-use crate::serde_helpers::hashi_duration;
-use crate::services::Service;
+use super::constraint::Constraint;
+use super::csi::CSIMountOptions;
+use super::jobs::UpdateStrategy;
+use super::resources::{NetworkResource, Resources};
+use super::scaling::ScalingPolicy;
+use super::serde_helpers::hashi_duration;
+use super::services::Service;
 
 #[derive(Debug, Default, Clone, Serialize, Deserialize)]
 #[serde(default, rename_all = "PascalCase")]

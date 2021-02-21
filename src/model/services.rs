@@ -5,9 +5,9 @@ use std::collections::HashMap;
 use std::net::IpAddr;
 use std::time::Duration;
 
-use crate::resources::Resources;
-use crate::serde_helpers::hashi_duration;
-use crate::tasks::LogConfig;
+use super::resources::Resources;
+use super::serde_helpers::hashi_duration;
+use super::tasks::LogConfig;
 
 #[derive(Debug, Default, Clone, Serialize, Deserialize)]
 #[serde(default, rename_all = "PascalCase")]

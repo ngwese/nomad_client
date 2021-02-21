@@ -1,4 +1,4 @@
-use nomad_client::jobs::JobListStub;
+use nomad_client::model::jobs::JobListStub;
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {

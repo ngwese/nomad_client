@@ -1,4 +1,4 @@
-use nomad_client::nodes::NodeListStub;
+use nomad_client::model::nodes::NodeListStub;
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {

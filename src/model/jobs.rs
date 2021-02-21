@@ -4,9 +4,9 @@ use serde_with::rust::default_on_null;
 use std::collections::HashMap;
 use std::time::Duration;
 
-use crate::constraint::Constraint;
-use crate::serde_helpers::hashi_duration;
-use crate::tasks::{Affinity, MigrateStrategy, ReschedulePolicy, Spread, TaskGroup};
+use super::constraint::Constraint;
+use super::serde_helpers::hashi_duration;
+use super::tasks::{Affinity, MigrateStrategy, ReschedulePolicy, Spread, TaskGroup};
 
 #[derive(Debug, Eq, PartialEq, Clone, Serialize, Deserialize)]
 #[serde(rename_all = "lowercase")]

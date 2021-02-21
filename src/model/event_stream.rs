@@ -1,11 +1,11 @@
 use serde::{Deserialize, Serialize};
 use serde_with::rust::default_on_null;
 
-use crate::allocations::Allocation;
-use crate::deployments::Deployment;
-use crate::evaluations::Evaluation;
-use crate::jobs::Job;
-use crate::nodes::Node;
+use super::allocations::Allocation;
+use super::deployments::Deployment;
+use super::evaluations::Evaluation;
+use super::jobs::Job;
+use super::nodes::Node;
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub enum Topic {

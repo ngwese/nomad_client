@@ -5,9 +5,9 @@ use serde_with::rust::default_on_null;
 use std::collections::HashMap;
 use std::net::IpAddr;
 
-use crate::jobs::Job;
-use crate::resources::{NetworkResource, Resources};
-use crate::tasks::TaskState;
+use super::jobs::Job;
+use super::resources::{NetworkResource, Resources};
+use super::tasks::TaskState;
 
 #[derive(Debug, Default, Clone, Serialize, Deserialize)]
 #[serde(default, rename_all = "PascalCase")]

@@ -6,7 +6,7 @@ use serde_with::serde_as;
 use std::collections::HashMap;
 use std::time::Duration;
 
-use crate::serde_helpers::hashi_duration;
+use super::serde_helpers::hashi_duration;
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(rename_all = "PascalCase")]

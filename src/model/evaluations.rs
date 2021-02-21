@@ -6,8 +6,8 @@ use serde_with::{serde_as, TimestampSeconds};
 use std::collections::HashMap;
 use std::time::{Duration, SystemTime};
 
-use crate::allocations::AllocationMetric;
-use crate::serde_helpers::hashi_duration;
+use super::allocations::AllocationMetric;
+use super::serde_helpers::hashi_duration;
 
 #[serde_as]
 #[derive(Debug, Clone, Serialize, Deserialize)]

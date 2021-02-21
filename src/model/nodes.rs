@@ -3,7 +3,7 @@ use serde::{Deserialize, Serialize};
 use serde_with::rust::default_on_null;
 use std::collections::HashMap;
 
-use crate::resources::{NetworkResource, NodeDeviceResource, Resources};
+use super::resources::{NetworkResource, NodeDeviceResource, Resources};
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(rename_all = "lowercase")]

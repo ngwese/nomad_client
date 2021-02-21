@@ -3,8 +3,8 @@ use serde_with::rust::{default_on_error, default_on_null};
 use std::collections::HashMap;
 use std::net::IpAddr;
 
-use crate::constraint::Constraint;
-use crate::tasks::Affinity;
+use super::constraint::Constraint;
+use super::tasks::Affinity;
 
 #[derive(Debug, Default, Clone, Serialize, Deserialize)]
 #[serde(default, rename_all = "PascalCase")]
